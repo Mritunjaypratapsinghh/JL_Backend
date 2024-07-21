@@ -1,17 +1,23 @@
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
-const bcrypt = require("bcrypt")
-const jwt = require("jsonwebtoken")
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
-    userId : {
-        type : String,
-        default : uuidv4,
-        unique : true
+    userId: {
+        type: String,
+        default: uuidv4,
+        unique: true
     },
-    userRole : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'Role'
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    githubId: {
+        type: String,
+        unique: true,
+        sparse: true
     },
     fullName: {
         type: String,
@@ -19,81 +25,31 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required : true,
-        unique: [true, "Email Already Exists"]
+        required: true,
+        unique: true
     },
     password: {
-        type: String,
-        required: true
-    },
-    phone: {
-        type: Number,
-    },
-    address: {
-        type: String,
-    },
-    profile_picture: {
-        type: String, // cloudnary
-    },
-    resume: {
-        type: String, // cloudnary
-    },
-    skills: {
-        type: Array,
-    },
-    dob: {
-        type: Date,
-    },
-    companyId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Company'
+        type: String
     },
     refreshToken: {
-        type: String,
-    },
-    applications: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: Job
-        }
-    ]
+        type: String
+    }
+}, { timestamps: true });
 
-}, { _id: false, timestamps: true });
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next();
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+});
 
-userSchema.pre("save",async function(next){
-    if(!this.isModified("password")) return next();
+userSchema.methods.generateAccessToken = function () {
+    return jwt.sign({ userId: this.userId, email: this.email, fullName: this.fullName }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRY });
+};
 
-    this.password = bcrypt.hash(this.password,10)
-    next()
-})
-
-userSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.compare(password,this.password)
-}
-
-userSchema.methods.generateAccessToken = function(){
-    return jwt.sign({
-        userId : this.userId,
-        email : this.email,
-        // userRole : this.userRole,
-        fullName : this.fullName
-    },process.env.ACCESS_TOKEN_SECRET,{
-        expiresIn : process.env.ACCESS_TOKEN_EXPIRY
-    })
-}
-
-userSchema.methods.generateRefreshToken = function(){
-    return jwt.sign({
-        userId : this.userId,
-    },process.env.REFRESH_TOKEN_SECRET,{
-        expiresIn : process.env.REFRESH_TOKEN_EXPIRY
-    })
-}
-
+userSchema.methods.generateRefreshToken = function () {
+    return jwt.sign({ userId: this.userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRY });
+};
 
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
-
-
-
