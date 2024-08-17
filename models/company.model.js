@@ -43,6 +43,6 @@ const companySchema = new mongoose.Schema({
     ]
 },{_id : false , timestamps : true})
 
-const Company = mongoose.model("Comapny",companySchema)
+const Company = mongoose.model("Company",companySchema)
 
 module.exports = Company
