@@ -25,10 +25,14 @@ exports.register = async (req, res) => {
     }
 
     const newUser = new User({ fullName, email, password });
-    await newUser.save();
 
+    // Generate tokens
     const accessToken = newUser.generateAccessToken();
     const refreshToken = newUser.generateRefreshToken();
+
+    // Save tokens in the database
+    newUser.refreshToken = refreshToken;
+    await newUser.save();
 
     res.json({ accessToken, refreshToken, message: "Registration successful" });
   } catch (error) {
@@ -55,8 +59,13 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    // Generate tokens
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
+
+    // Save the refresh token in the database
+    user.refreshToken = refreshToken;
+    await user.save();
 
     res.json({ accessToken, refreshToken, message: "Login successful" });
   } catch (error) {
@@ -81,19 +90,28 @@ exports.githubAuthCallback = (req, res) => {
 };
 
 exports.refreshAccessToken = async (req, res) => {
-  const refreshToken = req.body.refreshToken;
-  if (!refreshToken)
-    return res.status(400).json({ message: "Refresh Token is required" });
-
-  try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const user = await User.findById(decoded.userId);
-    if (!user || user.refreshToken != refreshToken)
-      return res.status(400).json({ message: "User not found" });
-
-    const accessToken = user.generateAccessToken();
-    res.status(200).json({ accessToken });
-  } catch (error) {
-    return res.status(400).json({ message: "Invalid Refresh Token" });
-  }
-};
+    const refreshToken = req.body.refreshToken;
+    if (!refreshToken) {
+      console.log("No refresh token provided");
+      return res.status(400).json({ message: "Refresh Token is required" });
+    }
+  
+    try {
+      console.log("Verifying refresh token:", refreshToken);
+      const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+      console.log("Decoded token:", decoded);
+      const user = await User.findOne({userId:decoded.userId});
+      if (!user || user.refreshToken !== refreshToken) {
+        console.log("User not found or refresh token mismatch");
+        return res.status(400).json({ message: "User not found" });
+      }
+  
+      const accessToken = user.generateAccessToken();
+      console.log("New access token generated:", accessToken);
+      res.status(200).json({ accessToken });
+    } catch (error) {
+      console.error("Error in refreshAccessToken:", error);
+      return res.status(400).json({ message: "Invalid Refresh Token" });
+    }
+  };
+  

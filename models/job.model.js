@@ -6,7 +6,7 @@ const jobSchema = new mongoose.Schema({
     jobId : {
         type : String,
         default : uuidv4,
-        unquie : true,
+        unique : true,
     },
     jobTitle : {
         type : String,
