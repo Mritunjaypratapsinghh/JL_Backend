@@ -14,6 +14,7 @@ const roleSchema = new mongoose.Schema({
   company: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
+    default:null
   },
 }, { timestamps: true }); // Add timestamps if needed
 

@@ -1,48 +1,49 @@
-const mongoose = require("mongoose")
-const {v4 : uuidv4} = require("uuid")
+const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
+
 const companySchema = new mongoose.Schema({
-    companyId : {
-        type : String,
-        default : uuidv4,
-        unique : true,
+    companyId: {
+        type: String,
+        default: uuidv4,
+        unique: true,
     },
-    companyName : {
-        type : String,
-        required : true,
-        unique : true,
+    companyName: {
+        type: String,
+        required: true,
+        unique: true,
     },
-    companyDescription : {
-        type : String,
+    companyDescription: {
+        type: String,
     },
-    companyWebsite : {
-        type : String,
+    companyWebsite: {
+        type: String,
     },
-    companyLogo : {
-        type : String,
+    companyLogo: {
+        type: String,
     },
-    companyCoverPage : {
-        type : String,
+    companyCoverPage: {
+        type: String,
     },
-    companyAddresses : [
+    companyAddresses: [
         {
-            type : String,
-            required : true
+            type: String,
+            required: true
         }
     ],
-    employessWorking : [
+    employessWorking: [
         {
-            type : mongoose.Schema.Types.ObjectId,
-            ref : 'User'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
         }
     ],
-    jobsVacant : [
+    jobsVacant: [
         {
-            type : mongoose.Schema.Types.ObjectId,
-            ref : 'Job'
+            type: String,
+            ref: 'Job'
         }
     ]
-},{_id : false , timestamps : true})
+}, { timestamps: true }); // Add timestamps if needed
 
-const Company = mongoose.model("Company",companySchema)
+const Company = mongoose.model("Company", companySchema);
 
-module.exports = Company
+module.exports = Company;

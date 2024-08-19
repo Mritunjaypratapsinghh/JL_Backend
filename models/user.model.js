@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema(
     refreshToken: {
       type: String,
     },
+    role: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Role'
+    },
   },
   { timestamps: true }
 );

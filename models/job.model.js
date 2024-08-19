@@ -1,53 +1,53 @@
-const mongoose = require("mongoose")
-const {v4 : uuidv4} = require("uuid")
-const aggregatePaginate = require("mongoose-aggregate-paginate-v2")
+const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
+const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 
 const jobSchema = new mongoose.Schema({
-    jobId : {
-        type : String,
-        default : uuidv4,
-        unique : true,
+    jobId: {
+        type: String,
+        default: uuidv4,
+        unique: true,
     },
-    jobTitle : {
-        type : String,
-        required : true
+    jobTitle: {
+        type: String,
+        required: true
     },
-    jobDescription : {
-        type : String,
+    jobDescription: {
+        type: String,
     },
-    jobSkills : {
-        type : String,
-        required : true
+    jobSkills: {
+        type: [String],
+        required: true
     },
-    jobCategories : [
+    jobCategories: [
         {
-            type : mongoose.Schema.Types.ObjectId,
-            ref : 'Category'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Category'
         }
     ],
-    company : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'Company',
-        required : true
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
+        required: true
     },
-    payScaleMin : {
-        type : Number,
-        required : true
+    payScaleMin: {
+        type: Number,
+        required: true
     },
-    payScaleMax : {
-        type : Number,
-        required : true
+    payScaleMax: {
+        type: Number,
+        required: true
     },
-    applications : [
+    applications: [
         {
-            type : mongoose.Schema.Types.ObjectId,
-            ref : 'User'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
         }
     ]
-},{_id : false, timestamps : true})
+}, { timestamps: true });
 
-jobSchema.plugin(aggregatePaginate)
+jobSchema.plugin(aggregatePaginate);
 
-const Job = mongoose.model("Job",jobSchema)
+const Job = mongoose.model("Job", jobSchema);
 
-module.exports = Job
+module.exports = Job;
