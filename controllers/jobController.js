@@ -12,12 +12,12 @@ exports.postJob = async (req, res) => {
   const userId = req.user.id;
   const userRole = req.user.role; // Assuming the user's role is stored in req.user.role
 
-// //   Allow both recruiters and admins to post jobs
-//   if (userRole !== "recruiter" && userRole !== "admin") {
-//     return res
-//       .status(403)
-//       .json({ message: "You do not have permission to post a job." });
-//   }
+  // //   Allow both recruiters and admins to post jobs
+  //   if (userRole !== "recruiter" && userRole !== "admin") {
+  //     return res
+  //       .status(403)
+  //       .json({ message: "You do not have permission to post a job." });
+  //   }
 
   try {
     const job = new Job({
@@ -59,24 +59,21 @@ exports.getJobs = async (req, res) => {
 };
 
 exports.getJobById = async (req, res) => {
-    try {
-      const job = await Job.findById(req.params.jobId);
-      if (!job) return res.status(404).json({ message: "Job not found" });
-      res.status(200).json(job);
-    } catch (error) {
-      console.error('Error retrieving job:', error); // Log the error details
-      res.status(500).json({ message: "Error retrieving job", error });
-    }
-  };
-  
-  
+  try {
+    const job = await Job.findById(req.params.jobId);
+    if (!job) return res.status(404).json({ message: "Job not found" });
+    res.status(200).json(job);
+  } catch (error) {
+    console.error("Error retrieving job:", error); // Log the error details
+    res.status(500).json({ message: "Error retrieving job", error });
+  }
+};
+
 exports.updateJob = async (req, res) => {
   try {
-    const job = await Job.findByIdAndUpdate(
-      req.params.jobId,
-      req.body,
-      { new: true }
-    );
+    const job = await Job.findByIdAndUpdate(req.params.jobId, req.body, {
+      new: true,
+    });
     if (!job) return res.status(404).json({ message: "Job not found" });
     res.status(200).json(job);
   } catch (error) {
@@ -86,7 +83,7 @@ exports.updateJob = async (req, res) => {
 
 exports.deleteJob = async (req, res) => {
   try {
-    const job = await Job.findByIdAndDelete( req.params.jobId);
+    const job = await Job.findByIdAndDelete(req.params.jobId);
     if (!job) return res.status(404).json({ message: "Job not found" });
     res.status(200).json({ message: "Job deleted successfully" });
   } catch (error) {

@@ -10,8 +10,7 @@ router.get('/', roleController.getRoles);
 router.get('/:roleId', roleController.getRoleById);
 router.put('/:roleId', roleController.updateRole);
 router.delete('/:roleId', roleController.deleteRole);
-// Assign role route
-router.post('/assign-role',authenticate,roleController.assignRole);
+router.post('/assign-role',authenticate,checkAdmin,roleController.assignRole);
 
 
 module.exports = router;

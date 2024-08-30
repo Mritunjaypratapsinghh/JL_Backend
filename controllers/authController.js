@@ -90,28 +90,27 @@ exports.githubAuthCallback = (req, res) => {
 };
 
 exports.refreshAccessToken = async (req, res) => {
-    const refreshToken = req.body.refreshToken;
-    if (!refreshToken) {
-      console.log("No refresh token provided");
-      return res.status(400).json({ message: "Refresh Token is required" });
+  const refreshToken = req.body.refreshToken;
+  if (!refreshToken) {
+    console.log("No refresh token provided");
+    return res.status(400).json({ message: "Refresh Token is required" });
+  }
+
+  try {
+    console.log("Verifying refresh token:", refreshToken);
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    console.log("Decoded token:", decoded);
+    const user = await User.findOne({ userId: decoded.userId });
+    if (!user || user.refreshToken !== refreshToken) {
+      console.log("User not found or refresh token mismatch");
+      return res.status(400).json({ message: "User not found" });
     }
-  
-    try {
-      console.log("Verifying refresh token:", refreshToken);
-      const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-      console.log("Decoded token:", decoded);
-      const user = await User.findOne({userId:decoded.userId});
-      if (!user || user.refreshToken !== refreshToken) {
-        console.log("User not found or refresh token mismatch");
-        return res.status(400).json({ message: "User not found" });
-      }
-  
-      const accessToken = user.generateAccessToken();
-      console.log("New access token generated:", accessToken);
-      res.status(200).json({ accessToken });
-    } catch (error) {
-      console.error("Error in refreshAccessToken:", error);
-      return res.status(400).json({ message: "Invalid Refresh Token" });
-    }
-  };
-  
+
+    const accessToken = user.generateAccessToken();
+    console.log("New access token generated:", accessToken);
+    res.status(200).json({ accessToken });
+  } catch (error) {
+    console.error("Error in refreshAccessToken:", error);
+    return res.status(400).json({ message: "Invalid Refresh Token" });
+  }
+};
